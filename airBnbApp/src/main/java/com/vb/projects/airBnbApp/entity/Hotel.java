@@ -26,6 +26,10 @@ public class Hotel {
 
     private String city;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @Column(columnDefinition = "TEXT[]")
     private String[] photos;
 
@@ -38,7 +42,7 @@ public class Hotel {
     @Column(nullable = false)
     private Boolean active;
 
-    @OneToMany(mappedBy = "hotel", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
     private List<Room> rooms = new ArrayList<>();
 
     @OneToMany(mappedBy = "hotel")

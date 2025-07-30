@@ -27,7 +27,7 @@ public class Hotel {
 
     private String city;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id")
     private User owner;
 

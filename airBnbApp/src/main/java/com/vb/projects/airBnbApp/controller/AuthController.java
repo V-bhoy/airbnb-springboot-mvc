@@ -4,7 +4,6 @@ import com.vb.projects.airBnbApp.dto.LoginRequestDto;
 import com.vb.projects.airBnbApp.dto.LoginResponseDto;
 import com.vb.projects.airBnbApp.dto.UserDto;
 import com.vb.projects.airBnbApp.dto.UserRequestDto;
-import com.vb.projects.airBnbApp.exception.ResourceNotFoundException;
 import com.vb.projects.airBnbApp.security.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

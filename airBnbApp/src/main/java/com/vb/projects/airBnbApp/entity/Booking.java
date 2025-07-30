@@ -3,11 +3,13 @@ package com.vb.projects.airBnbApp.entity;
 import com.vb.projects.airBnbApp.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -15,6 +17,7 @@ import java.util.Set;
 
 @Entity
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "bookings")
@@ -44,10 +47,6 @@ public class Booking {
     @Column(nullable = false)
     private LocalDate checkOutDate;
 
-    @OneToOne
-    @JoinColumn(name="payment_id")
-    private Payment payment;
-
     @ManyToMany
     @JoinTable(
             name = "booking_guest",
@@ -59,6 +58,9 @@ public class Booking {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
 
     @CreationTimestamp
     @Column(updatable = false)

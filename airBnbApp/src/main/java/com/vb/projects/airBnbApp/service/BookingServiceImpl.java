@@ -25,6 +25,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.vb.projects.airBnbApp.util.AppUtils.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor
@@ -165,6 +168,13 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Override
+    public List<BookingDto> getMyBookings() {
+        User user = getCurrentUser();
+        List<Booking> bookings = bookingRepository.findByUser(user);
+        return bookings.stream().map(booking -> modelMapper.map(booking, BookingDto.class)).toList();
+    }
+
     @Transactional
     public void capturePayment(Booking booking){
         Booking existingBooking = bookingRepository.findByPaymentSessionId(booking.getPaymentSessionId())
@@ -181,9 +191,5 @@ public class BookingServiceImpl implements BookingService {
 
     public boolean hasBookingExpired(Booking booking) {
         return booking.getCreatedAt().plusMinutes(10).isBefore(LocalDateTime.now());
-    }
-
-    public User getCurrentUser() {
-       return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

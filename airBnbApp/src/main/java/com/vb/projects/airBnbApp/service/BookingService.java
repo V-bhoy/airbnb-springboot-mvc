@@ -14,4 +14,6 @@ public interface BookingService {
     Object initiatePayments(Long bookingId);
 
     void cancelBooking(Long bookingId);
+
+    List<BookingDto> getMyBookings();
 }

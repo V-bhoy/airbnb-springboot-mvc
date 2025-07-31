@@ -42,4 +42,9 @@ public class RoomController {
         String msg = roomService.deleteRoom(id);
         return new ResponseEntity<>(new ResponseMessage(msg), HttpStatus.OK);
     }
+
+    @PutMapping("/id/{roomId}")
+    public ResponseEntity<RoomDto> updateRoomById(@PathVariable Long hotelId, @PathVariable Long roomId, @RequestBody RoomDto roomDto) {
+        return ResponseEntity.ok(roomService.updateRoom(hotelId, roomId, roomDto));
+    }
 }

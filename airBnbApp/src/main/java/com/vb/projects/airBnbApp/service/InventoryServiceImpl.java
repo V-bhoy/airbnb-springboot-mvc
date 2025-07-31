@@ -1,13 +1,16 @@
 package com.vb.projects.airBnbApp.service;
 
-import com.vb.projects.airBnbApp.dto.HotelDto;
-import com.vb.projects.airBnbApp.dto.HotelPriceDto;
-import com.vb.projects.airBnbApp.dto.HotelSearchRequest;
+import com.vb.projects.airBnbApp.dto.*;
 import com.vb.projects.airBnbApp.entity.Hotel;
 import com.vb.projects.airBnbApp.entity.Inventory;
 import com.vb.projects.airBnbApp.entity.Room;
+import com.vb.projects.airBnbApp.entity.User;
+import com.vb.projects.airBnbApp.exception.ResourceNotFoundException;
+import com.vb.projects.airBnbApp.exception.UnauthorisedException;
 import com.vb.projects.airBnbApp.repository.HotelMinPriceRepository;
 import com.vb.projects.airBnbApp.repository.InventoryRepository;
+import com.vb.projects.airBnbApp.repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,6 +22,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.vb.projects.airBnbApp.util.AppUtils.getCurrentUser;
 
 @Service
 @Slf4j
@@ -28,6 +35,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
     private final HotelMinPriceRepository hotelMinPriceRepository;
     private final ModelMapper modelMapper;
+    private final RoomRepository roomRepository;
 
     @Override
     public void initializeRoomForAYear(Room room) {
@@ -71,5 +79,36 @@ public class InventoryServiceImpl implements InventoryService {
         );
 
         return hotels;
+    }
+
+    @Override
+    public List<InventoryDto> getAllInventories(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(()-> new ResourceNotFoundException("Room not found"));
+        User user = getCurrentUser();
+        if(!user.equals(room.getHotel().getOwner())) {
+            throw new UnauthorisedException("You are not authorized to view this inventory");
+        }
+        List<Inventory> inventories = inventoryRepository.findByRoomOrderByDate(room);
+        return inventories.stream().map(inventory -> modelMapper.map(inventory, InventoryDto.class)).toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateInventories(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(()-> new ResourceNotFoundException("Room not found"));
+        User user = getCurrentUser();
+        if(!user.equals(room.getHotel().getOwner())) {
+            throw new UnauthorisedException("You are not authorized to view this inventory");
+        }
+        inventoryRepository.findAndLockUpdateInventories(roomId,
+                updateInventoryRequestDto.getStartDate(),
+                updateInventoryRequestDto.getEndDate());
+        inventoryRepository.updateInventories(roomId,
+                updateInventoryRequestDto.getStartDate(),
+                updateInventoryRequestDto.getEndDate(),
+                updateInventoryRequestDto.getSurgeFactor(),
+                updateInventoryRequestDto.getClosed());
     }
 }

@@ -66,8 +66,19 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public RoomDto updateRoom(Long id, RoomDto roomDto) {
-        return null;
+    public RoomDto updateRoom(Long hotelId, Long roomId ,RoomDto roomDto) {
+        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(()-> new ResourceNotFoundException("Hotel not found with id: "+hotelId));
+        User user = getCurrentUser();
+        if(!user.equals(hotel.getOwner())){
+            throw new UnauthorisedException("You are not authorized to update this action. Please contact the admin for this hotel");
+        }
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(()-> new ResourceNotFoundException("Room not found with id: "+roomId));
+        modelMapper.map(roomDto, room);
+        room.setId(roomId); // if request body doesn't contain id
+        //TODO:  if price / inventory updated, update the inventory
+        room = roomRepository.save(room);
+        return modelMapper.map(room, RoomDto.class);
     }
 
     @Override

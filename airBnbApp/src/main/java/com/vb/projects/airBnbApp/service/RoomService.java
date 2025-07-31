@@ -8,6 +8,6 @@ public interface RoomService {
     RoomDto createRoom(Long hotelId, RoomDto roomDto);
     List<RoomDto> getAllRoomsByHotelId(Long hotelId);
     RoomDto getRoomById(Long id);
-    RoomDto updateRoom(Long id, RoomDto roomDto);
+    RoomDto updateRoom(Long hotelId, Long roomId, RoomDto roomDto);
     String deleteRoom(Long id);
 }
